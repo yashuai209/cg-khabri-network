@@ -11,31 +11,43 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
+ const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+  setError('');
 
-    try {
-      const res = await fetchApi('admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
+  try {
+    const res = await fetchApi('admin/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username,
+        password
+      })
+    });
 
-      const data = await res.json();
-      if (res.ok) {
-        localStorage.setItem('admin_token', data.token);
-        navigate('/admin/dashboard');
-      } else {
-        setError(data.message || 'Login failed');
-      }
-    } catch (err) {
-      setError('An error occurred. Please try again.');
-    } finally {
-      setLoading(false);
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+
+      // token save karo
+      localStorage.setItem("admin_token", data.token || "admin-token");
+
+      // redirect fix
+      navigate("/admin");
+
+    } else {
+      setError(data.message || "Invalid username or password");
     }
-  };
+
+  } catch (err) {
+    setError("Failed to connect to server");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-[80vh] flex flex-col items-center justify-center px-4">
