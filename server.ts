@@ -29,7 +29,6 @@ app.get("/api/health", async (req, res) => {
       message: "Database connected successfully"
     });
   } catch (err: any) {
-    console.error("Database error:", err);
     res.status(500).json({
       status: "error",
       error: err.message
@@ -38,7 +37,20 @@ app.get("/api/health", async (req, res) => {
 });
 
 
-// ✅ Admin login route
+// ✅ TEST route (admin table check)
+app.get("/api/admin/test", async (req, res) => {
+  try {
+    const [rows]: any = await pool.query("SELECT * FROM admin");
+    res.json(rows);
+  } catch (err: any) {
+    res.status(500).json({
+      error: err.message
+    });
+  }
+});
+
+
+// ✅ Admin login route (FIXED with token)
 app.post("/api/admin/login", async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -49,16 +61,24 @@ app.post("/api/admin/login", async (req, res) => {
     );
 
     if (rows.length > 0) {
+
+      // token generate
+      const token = "admin-token-" + Date.now();
+
       res.json({
         success: true,
         message: "Login successful",
+        token: token,
         user: rows[0]
       });
+
     } else {
+
       res.status(401).json({
         success: false,
         message: "Invalid credentials"
       });
+
     }
 
   } catch (err: any) {
@@ -67,7 +87,7 @@ app.post("/api/admin/login", async (req, res) => {
 });
 
 
-// ✅ Admin stats route (dashboard ke liye)
+// ✅ Admin stats route
 app.get("/api/admin/stats", async (req, res) => {
   try {
     const [posts]: any = await pool.query(
@@ -125,7 +145,7 @@ app.post("/api/news", async (req, res) => {
 });
 
 
-// ✅ Posts route (frontend compatibility)
+// ✅ Posts route
 app.get("/api/posts", async (req, res) => {
   try {
     const [rows]: any = await pool.query(
