@@ -19,6 +19,7 @@ const pool = mysql.createPool({
   connectTimeout: 10000
 });
 
+
 // ✅ Health check route
 app.get("/api/health", async (req, res) => {
   try {
@@ -35,6 +36,7 @@ app.get("/api/health", async (req, res) => {
     });
   }
 });
+
 
 // ✅ Admin login route
 app.post("/api/admin/login", async (req, res) => {
@@ -64,6 +66,31 @@ app.post("/api/admin/login", async (req, res) => {
   }
 });
 
+
+// ✅ Admin stats route (dashboard ke liye)
+app.get("/api/admin/stats", async (req, res) => {
+  try {
+    const [posts]: any = await pool.query(
+      "SELECT * FROM news ORDER BY id DESC"
+    );
+
+    res.json({
+      totalStats: {
+        total_views: 0,
+        total_likes: 0,
+        total_comments: 0,
+        total_shares: 0,
+        total_clicks: 0
+      },
+      posts: posts
+    });
+
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 // ✅ GET all news
 app.get("/api/news", async (req, res) => {
   try {
@@ -75,6 +102,7 @@ app.get("/api/news", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 // ✅ CREATE news
 app.post("/api/news", async (req, res) => {
@@ -95,6 +123,41 @@ app.post("/api/news", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+
+// ✅ Posts route (frontend compatibility)
+app.get("/api/posts", async (req, res) => {
+  try {
+    const [rows]: any = await pool.query(
+      "SELECT * FROM news ORDER BY id DESC"
+    );
+    res.json(rows);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// ✅ Create post route
+app.post("/api/posts", async (req, res) => {
+  try {
+    const { title, content, category } = req.body;
+
+    await pool.query(
+      "INSERT INTO news (title, content, category) VALUES (?, ?, ?)",
+      [title, content, category]
+    );
+
+    res.json({
+      success: true,
+      message: "Post created successfully"
+    });
+
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 // ✅ IMPORTANT for Vercel
 export default app;
