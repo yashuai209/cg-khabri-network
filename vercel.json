@@ -1,5 +1,10 @@
 {
   "version": 2,
+
+  "installCommand": "npm install --legacy-peer-deps",
+  "buildCommand": "npm run vercel-build",
+  "outputDirectory": "dist",
+
   "builds": [
     {
       "src": "server.ts",
@@ -13,6 +18,7 @@
       }
     }
   ],
+
   "rewrites": [
     {
       "source": "/api/(.*)",
