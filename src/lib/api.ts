@@ -1,34 +1,35 @@
-const IS_PHP_BACKEND = false; // Vercel Node.js backend
+// src/lib/api.ts
 
-export const API_BASE = '/api';
+export const API_BASE = "/api";
 
-// Generate full API URL
 export const getApiUrl = (endpoint: string) => {
-  // remove starting slash if present
-  const cleanEndpoint = endpoint.startsWith('/')
-    ? endpoint.slice(1)
-    : endpoint;
-
-  return `${API_BASE}/${cleanEndpoint}`;
+  return `${API_BASE}/${endpoint}`;
 };
 
-// Fetch helper
 export const fetchApi = async (
   endpoint: string,
   options: RequestInit = {}
 ) => {
+
   const url = getApiUrl(endpoint);
 
-  const response = await fetch(url, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-    ...options,
-  });
+  try {
 
-  if (!response.ok) {
-    throw new Error(`API error: ${response.status}`);
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {})
+      }
+    });
+
+    return response;
+
+  } catch (error) {
+
+    console.error("API connection error:", error);
+    throw error;
+
   }
 
-  return response.json();
 };
