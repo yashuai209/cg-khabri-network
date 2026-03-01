@@ -1,0 +1,26 @@
+# .htaccess for Hostinger (React + PHP Backend)
+# Place this file in your public_html folder
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # 1. Allow access to the api folder (PHP files)
+  # If the request starts with /api/, don't redirect to index.html
+  RewriteCond %{REQUEST_URI} ^/api/ [NC]
+  RewriteRule ^ - [L]
+
+  # 2. Allow access to physical files and directories (images, css, js)
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # 3. Redirect everything else to index.html for React Router
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+# Optional: Disable directory listing
+Options -Indexes
+
+# Optional: Set default charset
+AddDefaultCharset UTF-8
